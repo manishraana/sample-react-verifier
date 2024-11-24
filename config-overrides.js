@@ -1,8 +1,23 @@
 const webpack = require("webpack");
 
+// https://github.com/facebook/create-react-app/issues/11889#issuecomment-1114928008
+function getFileLoaderRule(rules) {
+  for (const rule of rules) {
+    if ("oneOf" in rule) {
+      const found = getFileLoaderRule(rule.oneOf);
+      if (found) {
+        return found;
+      }
+    } else if (rule.test === undefined && rule.type === 'asset/resource') {
+      return rule;
+    }
+  }
+}
+
 module.exports = function override(config) {
   const fallback = config.resolve.fallback || {};
   Object.assign(fallback, {
+    vm: require.resolve("vm-browserify"),
     crypto: require.resolve("crypto-browserify"),
     stream: require.resolve("stream-browserify"),
     timers: require.resolve("timers-browserify"),
@@ -32,5 +47,12 @@ module.exports = function override(config) {
       fullySpecified: false,
     },
   });
+
+  const fileLoaderRule = getFileLoaderRule(config.module.rules);
+  if (!fileLoaderRule) {
+    throw new Error("File loader not found");
+  }
+  fileLoaderRule.exclude.push(/\.cjs$/);
+
   return config;
 };

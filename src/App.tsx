@@ -3,11 +3,11 @@ import { getData } from '@tradetrust-tt/tradetrust';
 import { utils } from '@tradetrust-tt/tradetrust';
 import { openAttestationVerifiers, verificationBuilder, isValid } from '@tradetrust-tt/tt-verify';
 import { providers } from 'ethers';
-import {amoyv3, stabilityv2,stabilitytestv2, sepoliav3} from './documents/samples';
+import { amoyv3, stabilityv2, stabilitytestv2, sepoliav3 } from './documents/samples';
 
 function App() {
 
-  const VerifierOptions:any = {
+  const VerifierOptions: any = {
     20180427: {
       provider: new providers.JsonRpcProvider("https://free.testnet.stabilityprotocol.com", 20180427)
     },
@@ -22,10 +22,10 @@ function App() {
       provider: new providers.JsonRpcProvider("https://rpc-amoy.polygon.technology", 80002)
     }
   }
-  
-  const verifyDocument = async (document:any) => {
+
+  const verifyDocument = async (document: any) => {
     let chainId = 11155111; // Sepolia
-  
+
     if (utils.isWrappedV2Document(document)) {
       const data = getData(document);
       if (data?.network) {
@@ -37,17 +37,19 @@ function App() {
       }
     }
     console.log("chainId:", chainId);
-  
+
     const verify = verificationBuilder(openAttestationVerifiers, VerifierOptions[chainId]);
     const verificationStatus = await verify(document);
     console.log(JSON.stringify(verificationStatus, null, 2));
-  
+
     const isValidR = isValid(verificationStatus);
     console.log('isValid', isValidR);
   }
   const handleVerify = () => {
-    //verifyDocument(amoyv3);
-    //verifyDocument(stabilityv2);
+    // verifyDocument(amoyv3);
+    // verifyDocument(sepoliav3);
+    // verifyDocument(stabilityv2);
+
     verifyDocument({
       "version": "https://schema.openattestation.com/2.0/schema.json",
       "data": {
@@ -114,17 +116,16 @@ function App() {
         "merkleRoot": "3273cdfde35fc7845875fa39b53b79a88a758feba4e13e844cfb73ca25abe0cc"
       }
     });
-    //verifyDocument(sepoliav3);
   }
 
   return (
     <div className="w-full h-screen flex items-center justify-center">
       <button
-            onClick={handleVerify}
-            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
-          >
-            Verify Document
-          </button>
+        onClick={handleVerify}
+        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-700"
+      >
+        Verify Document
+      </button>
     </div>
   );
 }
